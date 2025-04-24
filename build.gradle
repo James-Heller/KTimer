@@ -1,0 +1,32 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '2.1.20'
+}
+
+group = 'space.jamestang'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    maven { url 'https://maven.aliyun.com/repository/public/' }
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.18.3'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.3'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.18.3'
+
+    implementation 'io.netty:netty-all:4.2.0.Final'
+    implementation 'org.slf4j:slf4j-api:2.0.17'
+    implementation 'org.slf4j:slf4j-simple:2.0.17'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+}
+
+test {
+    useJUnitPlatform()
+}
+kotlin {
+    jvmToolchain(21)
+}
+compileKotlin {
+}
