@@ -1,5 +1,6 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '2.1.20'
+    id 'com.gradleup.shadow' version '8.3.6'
 }
 
 group = 'space.jamestang'
@@ -8,6 +9,16 @@ version = '1.0-SNAPSHOT'
 repositories {
     maven { url 'https://maven.aliyun.com/repository/public/' }
     mavenCentral()
+}
+
+tasks.shadowJar{
+    minimize()
+    archiveFileName = "KTimer-0.0.1-Alpha.jar"
+    manifest {
+        attributes(
+                'Main-Class': 'space.jamestang.ktimer.ApplicationKt'
+        )
+    }
 }
 
 dependencies {
