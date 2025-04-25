@@ -16,12 +16,6 @@ class KTimerMessageDecoder: ByteToMessageDecoder() {
         if (readableBytes > 0){
             val bytes = ByteArray(readableBytes)
             msg.readBytes(bytes)
-            if (Constant.logger.isDebugEnabled){
-                val payloadSize = readableBytes - 4
-                val payload = ByteArray(payloadSize)
-                msg.readBytes(payload, 3, payloadSize)
-                Constant.logger.debug(payload.toString(Charsets.UTF_8))
-            }
 
             try {
                 val message = Constant.mapper.readValue<KTimerMessage>(bytes)

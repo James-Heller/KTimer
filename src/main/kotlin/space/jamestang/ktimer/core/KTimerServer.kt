@@ -9,7 +9,6 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder
 import io.netty.handler.codec.LengthFieldPrepender
-import io.netty.handler.codec.json.JsonObjectDecoder
 import io.netty.util.HashedWheelTimer
 import space.jamestang.ktimer.ConnectionPool
 import space.jamestang.ktimer.codec.KTimerMessageDecoder
@@ -55,11 +54,16 @@ class KTimerServer(private val port: Int) {
                 val pipeline = ch.pipeline()
                 pipeline.apply {
                     addLast(DebugHandler())
+                    // 入站处理器
                     addLast(LengthFieldBasedFrameDecoder(1024*1024*1, 0, 4, 0, 4))
-                    addLast(LengthFieldPrepender(4))
-                    addLast(JsonObjectDecoder())
-                    addLast(KTimerMessageEncoder())
                     addLast(KTimerMessageDecoder())
+
+                    // 出站处理器
+                    addLast(LengthFieldPrepender(4, false))  // 再添加长度字段
+                    addLast(KTimerMessageEncoder())     // 先编码消息
+
+
+                    // 业务处理器
                     addLast(KTimerHandler(connectionPool))
 
                 }
