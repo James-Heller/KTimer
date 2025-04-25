@@ -11,6 +11,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder
 import io.netty.handler.codec.LengthFieldPrepender
 import io.netty.handler.codec.json.JsonObjectDecoder
 import io.netty.util.HashedWheelTimer
+import space.jamestang.ktimer.ConnectionPool
 import space.jamestang.ktimer.codec.KTimerMessageDecoder
 import space.jamestang.ktimer.codec.KTimerMessageEncoder
 
@@ -21,6 +22,7 @@ class KTimerServer(private val port: Int) {
     private val ioFactory = NioIoHandler.newFactory()
     private val bossEnvLoop = MultiThreadIoEventLoopGroup(1, ioFactory)
     private val workerGroup = MultiThreadIoEventLoopGroup(ioFactory)
+    private val connectionPool = ConnectionPool()
 
 
     fun start() {
@@ -58,7 +60,7 @@ class KTimerServer(private val port: Int) {
                     addLast(JsonObjectDecoder())
                     addLast(KTimerMessageEncoder())
                     addLast(KTimerMessageDecoder())
-                    addLast(KTimerHandler())
+                    addLast(KTimerHandler(connectionPool))
 
                 }
             }
