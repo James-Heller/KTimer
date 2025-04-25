@@ -13,12 +13,10 @@ class KTimerHandler(private val connectionPool: ConnectionPool): SimpleChannelIn
     }
     override fun channelRead0(ctx: ChannelHandlerContext, msg: KTimerMessage) {
         // Handle the incoming message
-        if (msg != null) {
-
-            if (msg.type == KTimerMessage.MessageType.CLIENT_REGISTER){
-                Constant.logger.info("Done.")
-            }
+        if (msg.type == KTimerMessage.MessageType.CLIENT_REGISTER){
+            Constant.logger.info("Done.")
         }
+        ctx.writeAndFlush(KTimerMessage.response())
     }
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
