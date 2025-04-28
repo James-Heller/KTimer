@@ -22,6 +22,14 @@ class KTimerHandler(private val connectionPool: ConnectionPool) : SimpleChannelI
 
     }
 
+    override fun exceptionCaught(ctx: ChannelHandlerContext?, cause: Throwable?) {
+        // Handle exceptions
+        cause?.let {
+            Constant.logger.error("Exception caught: ${it.message}")
+            ctx?.close()
+        }
+    }
+
     @OptIn(ExperimentalUuidApi::class)
     private fun handleClientRegister(ctx: ChannelHandlerContext, msg: KTimerMessage) {
         val clientId = msg.clientId ?: Uuid.random().toString()

@@ -19,7 +19,6 @@ class ConnectionPool {
 
     fun removeConnection(id: String) {
         pool.remove(id)
-
     }
 
     fun postMessage(id: String, payload: KTimerMessage) {
