@@ -10,7 +10,6 @@ class KTimerMessageEncoder: MessageToByteEncoder<KTimerMessage>() {
     override fun encode(ctx: ChannelHandlerContext, msg: KTimerMessage, out: ByteBuf) {
         try {
             val bytes = Constant.mapper.writeValueAsBytes(msg)
-            Constant.logger.info("Data length: {}", bytes.size)
             out.writeBytes(bytes)
 
         }catch (e: Exception){

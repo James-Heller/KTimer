@@ -9,7 +9,7 @@ package space.jamestang.ktimer.data
  * @param context the context of the task. this value will be used to determine the context of the task. determine by the client.
  */
 data class KTimerMessage(
-    val clientId: String,
+    val clientId: String?,
     val type: MessageType,
     val taskId: String,
     val context: KTimerTaskContext?

@@ -35,7 +35,7 @@ object Constant {
             setSerializationInclusion(JsonInclude.Include.NON_NULL)
             setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, true)
+            configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false)
             configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
             configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true)
             enable(JsonParser.Feature.AUTO_CLOSE_SOURCE)

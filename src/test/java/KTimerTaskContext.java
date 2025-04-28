@@ -5,9 +5,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class KTimerMessage {
-    String clientId;
-    MessageType type;
-    String taskId;
-    KTimerTaskContext context;
+public class KTimerTaskContext {
+    Long delay;
+    Object ctx;
 }

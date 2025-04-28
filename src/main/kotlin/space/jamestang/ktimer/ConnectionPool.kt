@@ -11,7 +11,6 @@ class ConnectionPool {
 
     fun addConnection(id: String, channel: Channel) {
         pool[id] = channel
-        Constant.logger.info("Channel $id was registered!")
     }
 
     fun getConnection(id: String): Channel? {
@@ -20,15 +19,24 @@ class ConnectionPool {
 
     fun removeConnection(id: String) {
         pool.remove(id)
-        Constant.logger.info("Channel $id was removed!")
+
     }
 
-    fun postMessage(id: String, payload: KTimerMessage){
+    fun postMessage(id: String, payload: KTimerMessage) {
         val channel = pool[id]
-        if (channel != null && channel.isActive) {
+        if (channel == null) {
+            Constant.logger.warn("Channel for client $id not found!")
+            return
+        }
+        if (!channel.isActive) {
+            Constant.logger.warn("Channel for client $id is not active!")
+            return
+        }
+        try {
             channel.writeAndFlush(payload)
-        } else {
-            Constant.logger.warn("Channel $id was not registered or is offline!")
+            Constant.logger.info("Message sent to client $id successfully.")
+        } catch (e: Exception) {
+            Constant.logger.error("Failed to send message to client $id: ${e.message}")
         }
     }
 }

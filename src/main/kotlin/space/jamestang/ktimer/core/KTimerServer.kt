@@ -52,7 +52,7 @@ class KTimerServer(private val port: Int) {
             override fun initChannel(ch: SocketChannel) {
                 val pipeline = ch.pipeline()
                 pipeline.apply {
-                    addLast(DebugHandler())
+
                     // 入站处理器
                     addLast(LengthFieldBasedFrameDecoder(1024*1024*1, 0, 4, 0, 4))
                     addLast(KTimerMessageDecoder())

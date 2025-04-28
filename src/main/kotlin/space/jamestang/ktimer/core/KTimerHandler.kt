@@ -24,23 +24,19 @@ class KTimerHandler(private val connectionPool: ConnectionPool) : SimpleChannelI
 
     @OptIn(ExperimentalUuidApi::class)
     private fun handleClientRegister(ctx: ChannelHandlerContext, msg: KTimerMessage) {
+        val clientId = msg.clientId ?: Uuid.random().toString()
 
-        if (connectionPool.getConnection(msg.clientId) != null) {
-            Constant.logger.warn("Client ${msg.clientId} was already registered!")
-            ctx.writeAndFlush(KTimerMessage(msg.clientId, KTimerMessage.MessageType.ERROR, "Already existed!!!", null))
-            ctx.close()
+        if (connectionPool.getConnection(clientId) != null) {
+            sendErrorAndClose(ctx, clientId, "Already registered!")
             return
         }
 
-        val clientId = Uuid.random().toString()
-        if (registerClient(clientId, ctx) == -1) {
-            Constant.logger.warn("Client $clientId was already registered!")
-            ctx.writeAndFlush(KTimerMessage(clientId, KTimerMessage.MessageType.ERROR, "Already existed!!!", null))
-            ctx.close()
-            return
+        if (registerClient(clientId, ctx)) {
+            val response = KTimerMessage.response(clientId)
+            ctx.writeAndFlush(response)
+        } else {
+            sendErrorAndClose(ctx, clientId, "Registration failed!")
         }
-        val response = KTimerMessage.response(clientId)
-        ctx.writeAndFlush(response)
     }
 
     private fun handleScheduleTask(ctx: ChannelHandlerContext, msg: KTimerMessage) {
@@ -48,42 +44,36 @@ class KTimerHandler(private val connectionPool: ConnectionPool) : SimpleChannelI
         val taskId = msg.taskId
         val context = msg.context
 
-        if (connectionPool.getConnection(clientId) == null) {
-            Constant.logger.warn("Client $clientId was not registered!")
-            ctx.writeAndFlush(KTimerMessage(clientId, KTimerMessage.MessageType.ERROR, "Not registered!!!", null))
-            ctx.close()
+        if (clientId == null || connectionPool.getConnection(clientId) == null) {
+            sendErrorAndClose(ctx, clientId, "Client not registered!")
             return
         }
 
-        if (context == null) {
-            Constant.logger.warn("Task context is null!")
-            ctx.writeAndFlush(KTimerMessage(clientId, KTimerMessage.MessageType.ERROR, "Task context is null!", null))
-            ctx.close()
+        if (taskId.isEmpty() || context == null) {
+            sendErrorAndClose(ctx, clientId, "Invalid task details!")
             return
         }
 
-        if (taskId.isEmpty()) {
-            Constant.logger.warn("Task ID is empty!")
-            ctx.writeAndFlush(KTimerMessage(clientId, KTimerMessage.MessageType.ERROR, "Task ID is empty!", null))
-            ctx.close()
-            return
-        }
-
-        TaskPool.scheduleTask(taskId, context.delay){
+        TaskPool.scheduleTask(taskId, context.delay) {
             Constant.logger.info("Task $taskId was triggered!")
-            val msg = KTimerMessage(clientId, KTimerMessage.MessageType.TASK_TRIGGER, taskId, context)
-
-            connectionPool.postMessage(clientId, msg)
+            val taskMessage = KTimerMessage(clientId, KTimerMessage.MessageType.TASK_TRIGGER, taskId, context)
+            connectionPool.postMessage(clientId, taskMessage)
         }
     }
 
-    private fun registerClient(clientId: String, ctx: ChannelHandlerContext): Int {
-        if (connectionPool.getConnection(clientId) != null) {
-            return -1
+    private fun registerClient(clientId: String, ctx: ChannelHandlerContext): Boolean {
+        return if (connectionPool.getConnection(clientId) == null) {
+            connectionPool.addConnection(clientId, ctx.channel())
+            Constant.logger.info("Client $clientId was registered!")
+            true
+        } else {
+            false
         }
-        connectionPool.addConnection(clientId, ctx.channel())
-        Constant.logger.info("Client $clientId was registered!")
+    }
 
-        return 0
+    private fun sendErrorAndClose(ctx: ChannelHandlerContext, clientId: String?, errorMessage: String) {
+        Constant.logger.warn("Error for client $clientId: $errorMessage")
+        ctx.writeAndFlush(KTimerMessage(clientId, KTimerMessage.MessageType.ERROR, errorMessage, null))
+        ctx.close()
     }
 }
