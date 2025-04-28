@@ -2,6 +2,7 @@ package space.jamestang.ktimer
 
 import io.netty.channel.Channel
 import space.jamestang.ktimer.core.Constant
+import space.jamestang.ktimer.data.KTimerMessage
 import java.util.concurrent.ConcurrentHashMap
 
 class ConnectionPool {
@@ -22,7 +23,7 @@ class ConnectionPool {
         Constant.logger.info("Channel $id was removed!")
     }
 
-    fun postMessage(id: String, payload: ByteArray){
+    fun postMessage(id: String, payload: KTimerMessage){
         val channel = pool[id]
         if (channel != null && channel.isActive) {
             channel.writeAndFlush(payload)

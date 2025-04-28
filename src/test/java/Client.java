@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Map;
 
 @Slf4j
 public class Client {
@@ -42,8 +42,12 @@ public class Client {
         }
     }
 
-    public static void sendMessage(){
-        KTimerMessage msg = new KTimerMessage(MessageType.HEARTBEAT, "PING", new Object());
+    public static void sendMessage() {
+        KTimerMessage msg = new KTimerMessage(
+            MessageType.SCHEDULE_TASK,
+            "task-123",
+            Map.of("delay", 5000) // 延迟 5 秒
+        );
         try {
             byte[] bytes = mapper.writeValueAsBytes(msg);
             output.writeInt(bytes.length);
