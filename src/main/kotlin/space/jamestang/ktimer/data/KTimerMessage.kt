@@ -13,9 +13,9 @@ data class KTimerMessage(
     val type: MessageType,
     val taskId: String,
     val context: KTimerTaskContext?
-){
-    companion object{
-        fun response(clientId: String): KTimerMessage{
+) {
+    companion object {
+        fun response(clientId: String): KTimerMessage {
             return KTimerMessage(
                 clientId,
                 MessageType.TASK_RECEIVED,
@@ -24,7 +24,8 @@ data class KTimerMessage(
             )
         }
     }
-    enum class MessageType{
-        CLIENT_REGISTER, SCHEDULE_TASK, TASK_TRIGGER, CANCEL_TASK, TASK_RECEIVED, HEARTBEAT, ERROR
+
+    enum class MessageType {
+        CLIENT_REGISTER, SCHEDULE_TASK, TASK_TRIGGER, CANCEL_TASK, TASK_RECEIVED, HEARTBEAT, ERROR, TASK_CANCELLED
     }
 }

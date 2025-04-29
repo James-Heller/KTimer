@@ -15,6 +15,7 @@ class KTimerHandler(private val connectionPool: ConnectionPool) : SimpleChannelI
         when (msg.type) {
             KTimerMessage.MessageType.CLIENT_REGISTER -> handleClientRegister(ctx, msg)
             KTimerMessage.MessageType.SCHEDULE_TASK -> handleScheduleTask(ctx, msg)
+            KTimerMessage.MessageType.CANCEL_TASK -> handleCancelTask(ctx, msg)
             else -> {
                 Constant.logger.debug("Unhandled message: {}", msg)
             }
@@ -58,6 +59,25 @@ class KTimerHandler(private val connectionPool: ConnectionPool) : SimpleChannelI
             val taskMessage = KTimerMessage(clientId, KTimerMessage.MessageType.TASK_TRIGGER, taskId, context)
             connectionPool.postMessage(clientId, taskMessage)
         }
+    }
+
+    private fun handleCancelTask(ctx: ChannelHandlerContext, msg: KTimerMessage) {
+        val clientId = msg.clientId
+        val taskId = msg.taskId
+
+        if (clientId.isNullOrEmpty()) {
+            sendErrorAndClose(ctx, clientId, "Client not registered!")
+            return
+        }
+        if (taskId.isEmpty()) {
+            sendErrorAndClose(ctx, clientId, "Invalid task ID!")
+            return
+        }
+
+        TaskPool.cancelTask(taskId)
+
+        val cancelMessage = KTimerMessage(clientId, KTimerMessage.MessageType.TASK_CANCELLED, taskId, null)
+        ctx.writeAndFlush(cancelMessage)
     }
 
     private fun registerClient(clientId: String, ctx: ChannelHandlerContext) {

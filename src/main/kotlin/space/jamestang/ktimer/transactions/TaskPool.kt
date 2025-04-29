@@ -31,4 +31,9 @@ object TaskPool {
         } , delayMinute, java.util.concurrent.TimeUnit.MINUTES)
         taskPool[taskId] = timeout
     }
+
+    fun cancelTask(taskId: String) {
+        val timeout = taskPool.remove(taskId)
+        timeout?.cancel()
+    }
 }
