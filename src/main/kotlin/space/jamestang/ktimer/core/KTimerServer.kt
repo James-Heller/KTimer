@@ -9,7 +9,6 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder
 import io.netty.handler.codec.LengthFieldPrepender
-import space.jamestang.ktimer.ConnectionPool
 import space.jamestang.ktimer.codec.KTimerMessageDecoder
 import space.jamestang.ktimer.codec.KTimerMessageEncoder
 

@@ -2,7 +2,6 @@ package space.jamestang.ktimer.core
 
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
-import space.jamestang.ktimer.ConnectionPool
 import space.jamestang.ktimer.data.KTimerMessage
 import space.jamestang.ktimer.transactions.TaskPool
 import kotlin.uuid.ExperimentalUuidApi

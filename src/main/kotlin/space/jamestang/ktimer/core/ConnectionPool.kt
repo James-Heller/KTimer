@@ -1,7 +1,6 @@
-package space.jamestang.ktimer
+package space.jamestang.ktimer.core
 
 import io.netty.channel.ChannelHandlerContext
-import space.jamestang.ktimer.core.Constant
 import space.jamestang.ktimer.data.KTimerMessage
 import java.util.concurrent.ConcurrentHashMap
 
