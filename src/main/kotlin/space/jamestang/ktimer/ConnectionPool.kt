@@ -1,19 +1,19 @@
 package space.jamestang.ktimer
 
-import io.netty.channel.Channel
+import io.netty.channel.ChannelHandlerContext
 import space.jamestang.ktimer.core.Constant
 import space.jamestang.ktimer.data.KTimerMessage
 import java.util.concurrent.ConcurrentHashMap
 
 class ConnectionPool {
 
-    private val pool = ConcurrentHashMap<String, Channel>()
+    private val pool = ConcurrentHashMap<String, ChannelHandlerContext>()
 
-    fun addConnection(id: String, channel: Channel) {
+    fun addConnection(id: String, channel: ChannelHandlerContext) {
         pool[id] = channel
     }
 
-    fun getConnection(id: String): Channel? {
+    fun getConnection(id: String): ChannelHandlerContext? {
         return pool[id]
     }
 
@@ -27,8 +27,9 @@ class ConnectionPool {
             Constant.logger.warn("Channel for client $id not found!")
             return
         }
-        if (!channel.isActive) {
+        if (!channel.channel().isActive) {
             Constant.logger.warn("Channel for client $id is not active!")
+            pool.remove(id)
             return
         }
         try {

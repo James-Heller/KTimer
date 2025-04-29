@@ -17,7 +17,9 @@ class KTimerHandler(private val connectionPool: ConnectionPool) : SimpleChannelI
         when (msg.type) {
             KTimerMessage.MessageType.CLIENT_REGISTER -> handleClientRegister(ctx, msg)
             KTimerMessage.MessageType.SCHEDULE_TASK -> handleScheduleTask(ctx, msg)
-            else -> TODO()
+            else -> {
+                println(msg)
+            }
         }
 
     }
@@ -34,17 +36,9 @@ class KTimerHandler(private val connectionPool: ConnectionPool) : SimpleChannelI
     private fun handleClientRegister(ctx: ChannelHandlerContext, msg: KTimerMessage) {
         val clientId = msg.clientId ?: Uuid.random().toString()
 
-        if (connectionPool.getConnection(clientId) != null) {
-            sendErrorAndClose(ctx, clientId, "Already registered!")
-            return
-        }
-
-        if (registerClient(clientId, ctx)) {
-            val response = KTimerMessage.response(clientId)
-            ctx.writeAndFlush(response)
-        } else {
-            sendErrorAndClose(ctx, clientId, "Registration failed!")
-        }
+        registerClient(clientId, ctx)
+        val response = KTimerMessage.response(clientId)
+        ctx.writeAndFlush(response)
     }
 
     private fun handleScheduleTask(ctx: ChannelHandlerContext, msg: KTimerMessage) {
@@ -52,7 +46,7 @@ class KTimerHandler(private val connectionPool: ConnectionPool) : SimpleChannelI
         val taskId = msg.taskId
         val context = msg.context
 
-        if (clientId == null || connectionPool.getConnection(clientId) == null) {
+        if (clientId == null) {
             sendErrorAndClose(ctx, clientId, "Client not registered!")
             return
         }
@@ -62,6 +56,8 @@ class KTimerHandler(private val connectionPool: ConnectionPool) : SimpleChannelI
             return
         }
 
+        registerClient(clientId, ctx)
+
         TaskPool.scheduleTask(taskId, context.delay) {
             Constant.logger.info("Task $taskId was triggered!")
             val taskMessage = KTimerMessage(clientId, KTimerMessage.MessageType.TASK_TRIGGER, taskId, context)
@@ -69,14 +65,9 @@ class KTimerHandler(private val connectionPool: ConnectionPool) : SimpleChannelI
         }
     }
 
-    private fun registerClient(clientId: String, ctx: ChannelHandlerContext): Boolean {
-        return if (connectionPool.getConnection(clientId) == null) {
-            connectionPool.addConnection(clientId, ctx.channel())
-            Constant.logger.info("Client $clientId was registered!")
-            true
-        } else {
-            false
-        }
+    private fun registerClient(clientId: String, ctx: ChannelHandlerContext) {
+        connectionPool.removeConnection(clientId)
+        connectionPool.addConnection(clientId, ctx)
     }
 
     private fun sendErrorAndClose(ctx: ChannelHandlerContext, clientId: String?, errorMessage: String) {
