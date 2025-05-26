@@ -7,13 +7,17 @@ import io.netty.channel.MultiThreadIoEventLoopGroup
 import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import space.jamestang.ktimer.message.KTimerMessage
-import java.util.function.Function
 
 class KTimer() {
+
+    companion object{
+        val logger = mu.KotlinLogging.logger("KTimer")
+    }
 
     private val nioHandlerFactory: IoHandlerFactory = NioIoHandler.newFactory()
     private val bossGroup = MultiThreadIoEventLoopGroup(nioHandlerFactory)
     private val workerGroup = MultiThreadIoEventLoopGroup(nioHandlerFactory)
+    private var iNetPort = 8080
 
     internal lateinit var messageEncoder: (KTimerMessage<Any>) -> ByteArray
     internal lateinit var messageDecoder: (ByteArray) -> KTimerMessage<Any>
@@ -33,7 +37,13 @@ class KTimer() {
 
         }
 
-        val channel = server.bind(8080).sync().channel()
+        val promise = server.bind(iNetPort).sync()
+
+        if (promise.isSuccess){
+            logger.info { "KTimer start successfully at port $iNetPort" }
+        } else {
+            throw RuntimeException("Failed to start KTimer server: ${promise.cause()?.message}")
+        }
     }
 
 }

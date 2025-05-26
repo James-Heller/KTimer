@@ -12,4 +12,5 @@ enum class KTimerMessageType {
     REGISTER_SUCCESS,
     REGISTER_FAIL,
     UNREGISTER,
+    ERROR
 }
