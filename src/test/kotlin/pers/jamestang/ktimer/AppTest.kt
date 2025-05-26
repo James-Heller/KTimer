@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 
 class AppTest {
 
-    lateinit var server: KTimer
+    var server: KTimer = KTimer()
     private val mapper = jacksonObjectMapper()
 
     lateinit var client: Socket
@@ -23,14 +23,16 @@ class AppTest {
     lateinit var dataOutputStream: DataOutputStream
 
 
+    init {
+        server.messageDecoder = { bytes -> mapper.readValue<KTimerMessage<Any>>(bytes) }
+        server.messageEncoder = { message -> mapper.writeValueAsBytes(message) }
+        server.strat()
+    }
+
 
 
     @BeforeTest
     fun setup(){
-        server = KTimer()
-        server.messageDecoder = { bytes -> mapper.readValue<KTimerMessage<Any>>(bytes) }
-        server.messageEncoder = { message -> mapper.writeValueAsBytes(message) }
-        server.strat()
 
         client = Socket("localhost", 8080)
         dataInputStream = DataInputStream(client.getInputStream())
@@ -55,8 +57,28 @@ class AppTest {
 
         // Receive the response
         val response: KTimerMessage<Unit> = receiveData()
-        println(response)
         assertEquals(KTimerMessageType.HEARTBEAT_RESPONSE, response.type, "Response type should be HEARTBEAT_RESPONSE")
+    }
+
+    @Test
+    fun applyCode() {
+
+        // Send an apply code message
+        val applyCodeMessage = KTimerMessage<Unit>(
+            clientId = "client1",
+            messageId = "msg2",
+            type = KTimerMessageType.APPLY_CODE,
+            unit = null,
+            payload = Unit
+        )
+
+        sendData(applyCodeMessage)
+
+        // Receive the response
+        val response: KTimerMessage<String> = receiveData()
+        assertEquals(KTimerMessageType.APPLY_CODE_SUCCESS, response.type, "Response type should be APPLY_CODE_SUCCESS")
+        assertEquals("msg2", response.messageId, "Message ID should match the request")
+        println("Received apply code: ${response.payload}")
     }
 
 
@@ -65,7 +87,8 @@ class AppTest {
         dataInputStream.close()
         dataOutputStream.close()
         client.close()
-
+        server.stop()
+        Thread.sleep(1000)
     }
 
 

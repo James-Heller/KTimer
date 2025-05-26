@@ -15,4 +15,16 @@ object KTimerMsgProcessor {
             payload = Unit
         )
     }
+
+    fun <T> processApplyCode(msg: KTimerMessage<T>): KTimerMessage<String> {
+
+        val hashcode = msg.hashCode()
+        return KTimerMessage(
+            clientId = msg.clientId,
+            messageId = msg.messageId,
+            type = KTimerMessageType.APPLY_CODE_SUCCESS,
+            unit = null,
+            payload = hashcode.toString()
+        )
+    }
 }

@@ -15,7 +15,7 @@ class KTimerMessageHandler: SimpleChannelInboundHandler<KTimerMessage<Any>>() {
 
         val response = when(msg.type){
             KTimerMessageType.HEARTBEAT -> KTimerMsgProcessor.processHeartBeat(msg)
-            KTimerMessageType.APPLY_CODE -> TODO()
+            KTimerMessageType.APPLY_CODE -> KTimerMsgProcessor.processApplyCode(msg)
             KTimerMessageType.TASK_SEND -> TODO()
             KTimerMessageType.TASK_TRIGGER -> TODO()
             KTimerMessageType.REGISTER -> TODO()

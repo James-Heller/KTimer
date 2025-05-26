@@ -46,5 +46,11 @@ class KTimer() {
         }
     }
 
+    fun stop() {
+        bossGroup.shutdownGracefully()
+        workerGroup.shutdownGracefully()
+        logger.info { "KTimer stopped successfully" }
+    }
+
 }
 
