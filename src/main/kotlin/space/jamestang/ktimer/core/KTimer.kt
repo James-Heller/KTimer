@@ -19,8 +19,11 @@ class KTimer() {
     private val workerGroup = MultiThreadIoEventLoopGroup(nioHandlerFactory)
     private var iNetPort = 8080
 
+    private val clientRegistry: ClientRegistry = ClientRegistry()
+
     internal lateinit var messageEncoder: (KTimerMessage<Any>) -> ByteArray
     internal lateinit var messageDecoder: (ByteArray) -> KTimerMessage<Any>
+    internal lateinit var channelInitializer: KTimerChannelInitializer
 
     fun strat(){
 
@@ -29,11 +32,12 @@ class KTimer() {
         }
 
         val server = ServerBootstrap()
+        channelInitializer = KTimerChannelInitializer(messageEncoder, messageDecoder, clientRegistry)
         server.apply {
             group(bossGroup, workerGroup)
             channel(NioServerSocketChannel::class.java)
             childOption(ChannelOption.SO_KEEPALIVE, true)
-            childHandler(KTimerChannelInitializer(messageEncoder, messageDecoder))
+            childHandler(channelInitializer)
 
         }
 
@@ -47,6 +51,7 @@ class KTimer() {
     }
 
     fun stop() {
+        channelInitializer.close()
         bossGroup.shutdownGracefully()
         workerGroup.shutdownGracefully()
         logger.info { "KTimer stopped successfully" }

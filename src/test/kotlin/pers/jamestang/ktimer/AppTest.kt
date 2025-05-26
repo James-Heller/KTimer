@@ -8,6 +8,7 @@ import space.jamestang.ktimer.message.KTimerMessage
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.Socket
+import java.util.concurrent.TimeUnit
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -21,7 +22,6 @@ class AppTest {
     lateinit var client: Socket
     lateinit var dataInputStream: DataInputStream
     lateinit var dataOutputStream: DataOutputStream
-
 
     init {
         server.messageDecoder = { bytes -> mapper.readValue<KTimerMessage<Any>>(bytes) }
@@ -66,7 +66,7 @@ class AppTest {
         // Send an apply code message
         val applyCodeMessage = KTimerMessage<Unit>(
             clientId = "client1",
-            messageId = "msg2",
+            messageId = "msg1",
             type = KTimerMessageType.APPLY_CODE,
             unit = null,
             payload = Unit
@@ -77,8 +77,80 @@ class AppTest {
         // Receive the response
         val response: KTimerMessage<String> = receiveData()
         assertEquals(KTimerMessageType.APPLY_CODE_SUCCESS, response.type, "Response type should be APPLY_CODE_SUCCESS")
+        assertEquals("msg1", response.messageId, "Message ID should match the request")
+    }
+
+    @Test
+    fun auth() {
+
+        // Send an apply code message
+        val applyCodeMessage = KTimerMessage<Unit>(
+            clientId = "client1",
+            messageId = "msg2",
+            type = KTimerMessageType.AUTH_REQUEST,
+            unit = null,
+            payload = Unit
+        )
+
+        sendData(applyCodeMessage)
+
+        // Receive the response
+        val response: KTimerMessage<String> = receiveData()
+        assertEquals(KTimerMessageType.AUTH_SUCCESS, response.type, "Response type should be APPLY_CODE_SUCCESS")
         assertEquals("msg2", response.messageId, "Message ID should match the request")
-        println("Received apply code: ${response.payload}")
+    }
+
+
+    @Test
+    fun sendTaskWithNoAuth(){
+        val task = KTimerMessage<String>(
+            clientId = "client1",
+            messageId = "task1",
+            type = KTimerMessageType.TASK_SEND,
+            unit = KTimerMessage.TimeInfo(TimeUnit.SECONDS, 20),
+            payload = "This is a test task"
+        )
+
+        sendData(task)
+
+        val response: KTimerMessage<String> = receiveData()
+        assertEquals(KTimerMessageType.ERROR, response.type, "Response type should be ERROR")
+    }
+
+    @Test
+    fun sendTaskWithAuthAndWaitTRIGGER(){
+        val authMessage = KTimerMessage<Unit>(
+            clientId = "client1",
+            messageId = "auth1",
+            type = KTimerMessageType.AUTH_REQUEST,
+            unit = null,
+            payload = Unit
+        )
+
+        sendData(authMessage)
+
+        val authResponse: KTimerMessage<String> = receiveData()
+        assertEquals(KTimerMessageType.AUTH_SUCCESS, authResponse.type, "Response type should be AUTH_SUCCESS")
+
+        val task = KTimerMessage<String>(
+            clientId = "client1",
+            messageId = "task1",
+            type = KTimerMessageType.TASK_SEND,
+            unit = KTimerMessage.TimeInfo(TimeUnit.SECONDS, 20),
+            payload = "This is a test task"
+        )
+
+        sendData(task)
+        val response: KTimerMessage<Unit> = receiveData()
+        assertEquals(KTimerMessageType.TASK_RECEIVE, response.type, "Response type should be TASK_RECEIVE")
+
+
+        Thread.sleep(20000)
+
+        val triggered = receiveData<String>()
+
+        assertEquals(KTimerMessageType.TASK_TRIGGER, triggered.type, "Response type should be TASK_TRIGGER")
+        println(triggered)
     }
 
 

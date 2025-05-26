@@ -5,31 +5,27 @@ import io.netty.channel.SimpleChannelInboundHandler
 import space.jamestang.ktimer.enum.KTimerMessageType
 import space.jamestang.ktimer.message.KTimerMessage
 
-class KTimerMessageHandler: SimpleChannelInboundHandler<KTimerMessage<Any>>() {
+class KTimerMessageHandler(registry: ClientRegistry): SimpleChannelInboundHandler<KTimerMessage<Any>>() {
 
     companion object{
         private val logger = mu.KotlinLogging.logger {}
     }
+
+    private val msgDeliveryHandler = MessageDeliveryHandler(registry)
 
     override fun channelRead0(ctx: ChannelHandlerContext, msg: KTimerMessage<Any>) {
 
         val response = when(msg.type){
             KTimerMessageType.HEARTBEAT -> KTimerMsgProcessor.processHeartBeat(msg)
             KTimerMessageType.APPLY_CODE -> KTimerMsgProcessor.processApplyCode(msg)
-            KTimerMessageType.TASK_SEND -> TODO()
-            KTimerMessageType.TASK_TRIGGER -> TODO()
-            KTimerMessageType.REGISTER -> TODO()
-            KTimerMessageType.UNREGISTER -> TODO()
-            KTimerMessageType.ERROR -> TODO()
-            else -> {
-                KTimerMessage(
-                    clientId = msg.clientId,
-                    messageId = msg.messageId,
-                    type = KTimerMessageType.ERROR,
-                    unit = null,
-                    payload = Unit
-                )
-            }
+            KTimerMessageType.TASK_SEND -> KTimerMsgProcessor.processTaskSend(msgDeliveryHandler, msg)
+            else -> KTimerMessage(
+                clientId = msg.clientId,
+                messageId = msg.messageId,
+                type = KTimerMessageType.HEARTBEAT_RESPONSE,
+                unit = null,
+                payload = Unit
+            )
         }
 
         ctx.writeAndFlush(response).addListener { future ->
@@ -39,6 +35,11 @@ class KTimerMessageHandler: SimpleChannelInboundHandler<KTimerMessage<Any>>() {
                 logger.info { "Response sent successfully: ${response.type}" }
             }
         }
+    }
+
+
+    fun close(){
+        msgDeliveryHandler.close()
     }
 
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {

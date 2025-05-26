@@ -11,8 +11,12 @@ import space.jamestang.ktimer.message.KTimerMessage
 
 class KTimerChannelInitializer(
     private val messageEncoder: (KTimerMessage<Any>) -> ByteArray,
-    private val messageDecoder: (ByteArray) -> KTimerMessage<Any>
-): ChannelInitializer<SocketChannel>() {
+    private val messageDecoder: (ByteArray) -> KTimerMessage<Any>,
+    clientRegistry: ClientRegistry
+): ChannelInitializer<SocketChannel>(), AutoCloseable {
+
+    private val authService = KTimerAuthService(clientRegistry)
+    private val messageHandler = KTimerMessageHandler(clientRegistry)
 
     override fun initChannel(ch: SocketChannel) {
         ch.pipeline().apply {
@@ -20,9 +24,13 @@ class KTimerChannelInitializer(
             addLast(LengthFieldPrepender(4))
             addLast(KTimerMessageEncoder(messageEncoder))
             addLast(KTimerMessageDecoder(messageDecoder))
-
-            addLast(KTimerMessageHandler())
+            addLast(authService)
+            addLast(messageHandler)
         }
 
+    }
+
+    override fun close() {
+        messageHandler.close()
     }
 }
