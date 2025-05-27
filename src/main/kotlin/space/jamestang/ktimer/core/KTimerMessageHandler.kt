@@ -1,23 +1,23 @@
 package space.jamestang.ktimer.core
 
+import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 import space.jamestang.ktimer.enum.KTimerMessageType
 import space.jamestang.ktimer.message.KTimerMessage
 
-class KTimerMessageHandler(registry: ClientRegistry): SimpleChannelInboundHandler<KTimerMessage<Any>>() {
+@ChannelHandler.Sharable
+class KTimerMessageHandler(private val registry: ClientRegistry): SimpleChannelInboundHandler<KTimerMessage<Any>>() {
 
     companion object{
         private val logger = mu.KotlinLogging.logger {}
     }
-
     private val msgDeliveryHandler = MessageDeliveryHandler(registry)
 
     override fun channelRead0(ctx: ChannelHandlerContext, msg: KTimerMessage<Any>) {
 
         val response = when(msg.type){
             KTimerMessageType.HEARTBEAT -> KTimerMsgProcessor.processHeartBeat(msg)
-            KTimerMessageType.APPLY_CODE -> KTimerMsgProcessor.processApplyCode(msg)
             KTimerMessageType.TASK_SEND -> KTimerMsgProcessor.processTaskSend(msgDeliveryHandler, msg)
             else -> KTimerMessage(
                 clientId = msg.clientId,
@@ -61,6 +61,7 @@ class KTimerMessageHandler(registry: ClientRegistry): SimpleChannelInboundHandle
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
         logger.info { "Channel inactive" }
+        registry.handleChannelInactive(ctx.channel())
         ctx.close()
     }
 }

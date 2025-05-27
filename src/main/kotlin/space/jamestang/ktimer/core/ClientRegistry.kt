@@ -17,9 +17,13 @@ class ClientRegistry {
 
     private val clientChannels = ConcurrentHashMap<String, Channel>()
 
+    // 添加Channel到clientId的反向映射
+    private val channelToClientId = ConcurrentHashMap<String, String>()
+
     fun registerClient(clientId: String, channel: Channel) {
         clientChannels[clientId] = channel
         allChannels.add(channel)
+        channelToClientId[channel.id().asLongText()] = clientId
 
         channel.closeFuture().addListener {
             deregisterClient(clientId)
@@ -46,5 +50,32 @@ class ClientRegistry {
 
     fun getAllClients(): List<String> {
         return clientChannels.keys.toList()
+    }
+
+
+    fun handleChannelInactive(channel: Channel) {
+        val channelId = channel.id().asLongText()
+        val clientId = channelToClientId[channelId]
+        if (clientId != null) {
+            logger.info { "Channel ${channel.id()} became inactive, deregistering client $clientId" }
+            deregisterClient(clientId)
+        } else {
+            logger.info { "Channel ${channel.id()} became inactive, no associated clientId found" }
+        }
+    }
+
+    fun validateConnections() {
+        val inactiveClients = mutableListOf<String>()
+
+        clientChannels.forEach { (clientId, channel) ->
+            if (!channel.isActive) {
+                inactiveClients.add(clientId)
+            }
+        }
+
+        inactiveClients.forEach { clientId ->
+            logger.info { "Client $clientId has inactive connection, removing registration" }
+            deregisterClient(clientId)
+        }
     }
 }

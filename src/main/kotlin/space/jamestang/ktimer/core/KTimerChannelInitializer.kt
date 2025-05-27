@@ -15,7 +15,7 @@ class KTimerChannelInitializer(
     clientRegistry: ClientRegistry
 ): ChannelInitializer<SocketChannel>(), AutoCloseable {
 
-    private val authService = KTimerAuthService(clientRegistry)
+    private val authHandler = KTimerAuthHandler(clientRegistry)
     private val messageHandler = KTimerMessageHandler(clientRegistry)
 
     override fun initChannel(ch: SocketChannel) {
@@ -24,7 +24,7 @@ class KTimerChannelInitializer(
             addLast(LengthFieldPrepender(4))
             addLast(KTimerMessageEncoder(messageEncoder))
             addLast(KTimerMessageDecoder(messageDecoder))
-            addLast(authService)
+            addLast(authHandler)
             addLast(messageHandler)
         }
 

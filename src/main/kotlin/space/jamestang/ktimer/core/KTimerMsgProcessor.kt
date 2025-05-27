@@ -16,17 +16,6 @@ object KTimerMsgProcessor {
         )
     }
 
-    fun <T> processApplyCode(msg: KTimerMessage<T>): KTimerMessage<Unit> {
-
-        val hashcode = msg.hashCode()
-        return KTimerMessage(
-            clientId = hashcode.toString(),
-            messageId = msg.messageId,
-            type = KTimerMessageType.APPLY_CODE_SUCCESS,
-            unit = null,
-            payload = Unit
-        )
-    }
 
     fun <T> processTaskSend(msgDeliveryHandler: MessageDeliveryHandler, msg: KTimerMessage<T>): KTimerMessage<Unit>{
         msgDeliveryHandler.scheduleMessage(msg.clientId, msg.unit!!.amount, msg)

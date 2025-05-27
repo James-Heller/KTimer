@@ -14,4 +14,31 @@ data class KTimerMessage<T>(
         val unit: TimeUnit,
         val amount: Long
     )
+
+
+    companion object{
+        fun error(
+            clientId: String = "server",
+            messageId: String = "error",
+            payload: String = "An error occurred"
+        ): KTimerMessage<String> {
+            return KTimerMessage(
+                clientId = clientId,
+                messageId = messageId,
+                type = KTimerMessageType.ERROR,
+                unit = null,
+                payload = payload
+            )
+        }
+
+        fun welcome(clientId: String = "server", messageId: String = "welcome"): KTimerMessage<Unit> {
+            return KTimerMessage(
+                clientId = clientId,
+                messageId = messageId,
+                type = KTimerMessageType.WELCOME,
+                unit = null,
+                payload = Unit
+            )
+        }
+    }
 }
