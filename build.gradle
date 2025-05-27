@@ -1,5 +1,7 @@
 plugins {
+    id 'application'
     id 'org.jetbrains.kotlin.jvm' version '2.1.20'
+    id 'com.gradleup.shadow' version '9.0.0-beta13'
 }
 
 group = 'space.jamestang'
@@ -9,15 +11,31 @@ repositories {
     mavenCentral()
 }
 
+
+shadowJar{
+    archiveBaseName = 'KTimer'
+    archiveClassifier = ''
+    archiveVersion = '0.0.1'
+    mergeServiceFiles()
+    minimize{
+        exclude(dependency('ch.qos.logback:logback-classic:.*'))
+        exclude(dependency('ch.qos.logback:logback-core:.*'))
+    }
+
+}
+application {
+    mainClass = 'space.jamestang.ktimer.MainKt'
+}
+
 dependencies {
     implementation 'io.netty:netty-all:4.2.1.Final'
 
     implementation 'io.github.microutils:kotlin-logging:3.0.5'
     implementation 'ch.qos.logback:logback-classic:1.5.13'
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
-    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.19.0'
-    testImplementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.19.+'
-    testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.19.0'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.19.+'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0'
 }
 
 test {

@@ -21,8 +21,8 @@ class KTimer() {
 
     private val clientRegistry: ClientRegistry = ClientRegistry()
 
-    internal lateinit var messageEncoder: (KTimerMessage<Any>) -> ByteArray
-    internal lateinit var messageDecoder: (ByteArray) -> KTimerMessage<Any>
+    lateinit var messageEncoder: (KTimerMessage<Any>) -> ByteArray
+    lateinit var messageDecoder: (ByteArray) -> KTimerMessage<Any>
     internal lateinit var channelInitializer: KTimerChannelInitializer
 
     fun strat(){
