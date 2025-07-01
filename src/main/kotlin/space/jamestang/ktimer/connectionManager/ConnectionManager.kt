@@ -3,7 +3,7 @@ package space.jamestang.ktimer.connectionManager
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFutureListener
 import io.netty.util.AttributeKey
-import mu.KotlinLogging
+import org.slf4j.LoggerFactory
 import space.jamestang.ktimer.connectionManager.enum.ConnectionStatus
 import space.jamestang.ktimer.message.KTimerMessage
 import space.jamestang.ktimer.message.MessageBuilder
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap
 class ConnectionManager {
     private val connections = ConcurrentHashMap<String, ClientConnection>()
     private val clientChannels = ConcurrentHashMap<String, String>() // clientId -> connectionId
-    private val logger = KotlinLogging.logger {}
+    private val logger = LoggerFactory.getLogger(ConnectionManager::class.java)
 
     /**
      * 注册新连接

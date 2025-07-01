@@ -4,7 +4,7 @@ import io.netty.channel.ChannelFutureListener
 import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
-import mu.KotlinLogging
+import org.slf4j.LoggerFactory
 import space.jamestang.ktimer.connectionManager.ConnectionManager
 import space.jamestang.ktimer.message.AckData
 import space.jamestang.ktimer.message.AckStatus
@@ -25,7 +25,7 @@ import space.jamestang.ktimer.message.enums.TimerPriority
 @ChannelHandler.Sharable
 class TimerMessageHandler(private val connectionManager: ConnectionManager) : SimpleChannelInboundHandler<KTimerMessage>() {
 
-    private val logger = KotlinLogging.logger {}
+    private val logger = LoggerFactory.getLogger(TimerMessageHandler::class.java)
 
     override fun channelActive(ctx: ChannelHandlerContext) {
         val connectionId = connectionManager.registerConnection(ctx.channel())

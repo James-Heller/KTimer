@@ -5,12 +5,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.MessageToByteEncoder
-import mu.KotlinLogging
+import org.slf4j.Logger
+
+import org.slf4j.LoggerFactory
 import space.jamestang.ktimer.message.KTimerMessage
 
 class KTimerMessageEncoder: MessageToByteEncoder<KTimerMessage>() {
 
-    val logger = KotlinLogging.logger {}
+    val logger: Logger = LoggerFactory.getLogger(KTimerMessageEncoder::class.java)
 
     private val mapper = jacksonObjectMapper().apply {
         findAndRegisterModules()
@@ -23,7 +25,7 @@ class KTimerMessageEncoder: MessageToByteEncoder<KTimerMessage>() {
             out.writeInt(jsonBytes.size)
             out.writeBytes(jsonBytes)
         }catch (e: Exception) {
-            logger.error(e) { "Error serializing message $msg" }
+            logger.error("Error serializing message: {}", e.message)
         }
     }
 }

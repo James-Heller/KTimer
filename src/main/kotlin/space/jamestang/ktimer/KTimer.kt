@@ -8,7 +8,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.timeout.IdleState
 import io.netty.handler.timeout.IdleStateEvent
 import io.netty.handler.timeout.IdleStateHandler
-import mu.KotlinLogging
+
 import org.slf4j.LoggerFactory
 import space.jamestang.ktimer.codec.KTimerMessageDecoder
 import space.jamestang.ktimer.codec.KTimerMessageEncoder
@@ -20,7 +20,7 @@ class KTimer(
     private val config: KTimerConfig
 ){
 
-    private val logger = KotlinLogging.logger {}
+    private val logger = LoggerFactory.getLogger(KTimer::class.java)
     private lateinit var bossGroup: EventLoopGroup
     private lateinit var workerGroup: EventLoopGroup
     private lateinit var serverBootstrap: ServerBootstrap
