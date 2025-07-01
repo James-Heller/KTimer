@@ -1,6 +1,6 @@
 package space.jamestang.ktimer.message
 
-import space.jamestang.ktimer.message.enum.MessageType
+import space.jamestang.ktimer.message.enums.MessageType
 
 /**
  * The core message data module for KTimer.

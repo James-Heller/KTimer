@@ -19,8 +19,8 @@ import space.jamestang.ktimer.message.SystemInfo
 import space.jamestang.ktimer.message.TimerCallbackData
 import space.jamestang.ktimer.message.TimerCancelData
 import space.jamestang.ktimer.message.TimerRegisterData
-import space.jamestang.ktimer.message.enum.MessageType
-import space.jamestang.ktimer.message.enum.TimerPriority
+import space.jamestang.ktimer.message.enums.MessageType
+import space.jamestang.ktimer.message.enums.TimerPriority
 
 @ChannelHandler.Sharable
 class TimerMessageHandler(private val connectionManager: ConnectionManager) : SimpleChannelInboundHandler<KTimerMessage>() {

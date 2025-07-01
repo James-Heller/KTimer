@@ -1,7 +1,7 @@
 package space.jamestang.ktimer.message
 
-import space.jamestang.ktimer.message.enum.MessageType
-import space.jamestang.ktimer.message.enum.TimerPriority
+import space.jamestang.ktimer.message.enums.MessageType
+import space.jamestang.ktimer.message.enums.TimerPriority
 
 /**
  * 消息构建器

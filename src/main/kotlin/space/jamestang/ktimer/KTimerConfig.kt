@@ -1,6 +1,6 @@
 package space.jamestang.ktimer
 
-data class ApplicationConfig(
+data class KTimerConfig(
     val port: Int = 8080,
     val bossThreads: Int = 1,
     val workerThreads: Int = Runtime.getRuntime().availableProcessors() * 2,

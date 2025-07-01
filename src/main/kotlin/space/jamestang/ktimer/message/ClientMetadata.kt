@@ -5,4 +5,4 @@ data class ClientMetadata(
     val ip: String,
     val port: Int,
     val environment: String
-)
+): MessageData()

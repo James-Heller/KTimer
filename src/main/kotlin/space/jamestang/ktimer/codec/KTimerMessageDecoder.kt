@@ -1,6 +1,7 @@
 package space.jamestang.ktimer.codec
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -19,7 +20,8 @@ class KTimerMessageDecoder: LengthFieldBasedFrameDecoder(
     val logger = KotlinLogging.logger {}
 
     private val mapper = jacksonObjectMapper().apply {
-        findAndRegisterModules()
+        val kotlin = KotlinModule.Builder().build()
+        registerModule(kotlin)
         disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     }
 

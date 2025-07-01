@@ -1,6 +1,6 @@
 package space.jamestang.ktimer.message
 
-import space.jamestang.ktimer.message.enum.TimerPriority
+import space.jamestang.ktimer.message.enums.TimerPriority
 
 /**
  * 定时器注册数据

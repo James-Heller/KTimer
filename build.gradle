@@ -29,13 +29,15 @@ application {
 
 dependencies {
     implementation 'io.netty:netty-all:4.2.1.Final'
-
+    implementation 'org.jetbrains.kotlinx:kotlinx-cli:0.3.6'
     implementation 'io.github.microutils:kotlin-logging:3.0.5'
     implementation 'ch.qos.logback:logback-classic:1.5.13'
-    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+
+
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.19.0'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.19.+'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
 }
 
 test {

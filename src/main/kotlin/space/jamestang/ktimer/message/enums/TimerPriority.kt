@@ -1,4 +1,4 @@
-package space.jamestang.ktimer.message.enum
+package space.jamestang.ktimer.message.enums
 
 enum class TimerPriority {
     HIGH, NORMAL, LOW
