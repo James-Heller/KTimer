@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 import org.slf4j.LoggerFactory
 import space.jamestang.ktimer.connectionManager.ConnectionManager
+import space.jamestang.ktimer.core.Core
 import space.jamestang.ktimer.message.AckData
 import space.jamestang.ktimer.message.AckStatus
 import space.jamestang.ktimer.message.ClientMetadata
@@ -26,6 +27,7 @@ import space.jamestang.ktimer.message.enums.TimerPriority
 class TimerMessageHandler(private val connectionManager: ConnectionManager) : SimpleChannelInboundHandler<KTimerMessage>() {
 
     private val logger = LoggerFactory.getLogger(TimerMessageHandler::class.java)
+    private val core = Core(connectionManager)
 
     override fun channelActive(ctx: ChannelHandlerContext) {
         val connectionId = connectionManager.registerConnection(ctx.channel())
@@ -111,8 +113,7 @@ class TimerMessageHandler(private val connectionManager: ConnectionManager) : Si
             return
         }
 
-        // TODO: 实现定时器注册逻辑
-        // timerService.registerTimer(msg.clientId, timerData)
+        core.registerTask(msg.clientId, timerData)
 
         val ackMessage = MessageBuilder.createAck(
             clientId = msg.clientId,
@@ -134,8 +135,8 @@ class TimerMessageHandler(private val connectionManager: ConnectionManager) : Si
             return
         }
 
-        // TODO: 实现定时器取消逻辑
-        // timerService.cancelTimer(msg.clientId, cancelData.timerId)
+
+        core.cancelTask(msg.clientId ,cancelData.timerId)
 
         val ackMessage = MessageBuilder.createAck(
             clientId = msg.clientId,

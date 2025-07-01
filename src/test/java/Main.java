@@ -16,7 +16,7 @@ import java.net.Socket;
 
 public class Main {
 
-    private static final Logger loggger = LoggerFactory.getLogger("Main"); // 将 loggger 声明为 final
+    private static final Logger logger = LoggerFactory.getLogger("Main"); // 将 loggger 声明为 final
 
     public static void main(String[] args) throws IOException {
 
@@ -42,7 +42,7 @@ public class Main {
             var response = mapper.readValue(responseBytes, KTimerMessage.class);
 
             if (response.getType() == MessageType.ACK){
-                loggger.info("注册成功: {}", response.getData());
+                logger.info("注册成功: {}", response.getData());
             }
 
             // 发送一个心跳包
@@ -57,13 +57,13 @@ public class Main {
             dis.readFully(heartbeatResponseBytes);
             var heartbeatResponse = mapper.readValue(heartbeatResponseBytes, KTimerMessage.class);
             if (heartbeatResponse.getType() == MessageType.ACK) {
-                loggger.info("心跳包响应成功: {}", heartbeatResponse.getData());
+                logger.info("心跳包响应成功: {}", heartbeatResponse.getData());
             } else {
-                loggger.error("心跳包响应失败: {}", heartbeatResponse.getData());
+                logger.error("心跳包响应失败: {}", heartbeatResponse.getData());
             }
 
             //定时器注册
-            var timerData = MessageBuilder.INSTANCE.createTimerRegister("TestClient", "order-01", 3000, "order canceled", TimerPriority.HIGH, null);
+            var timerData = MessageBuilder.INSTANCE.createTimerRegister("TestClient", "order-01", 30000, "order canceled", TimerPriority.HIGH, null);
             var timerBytes = mapper.writeValueAsBytes(timerData);
             dos.writeInt(timerBytes.length);
             dos.write(timerBytes);
@@ -74,14 +74,14 @@ public class Main {
             dis.readFully(timerResponseBytes);
             var timerResponse = mapper.readValue(timerResponseBytes, KTimerMessage.class);
 
-            loggger.info(timerResponse.getData().toString());
+            logger.info(timerResponse.getData().toString());
 
 
             length = dis.readInt();
             var callback = new byte[length];
             dis.readFully(callback);
             var callback_data = mapper.readValue(callback, KTimerMessage.class);
-            loggger.info(callback_data.getData().toString());
+            logger.info(callback_data.getData().toString());
         }
     }
 }
