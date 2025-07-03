@@ -13,6 +13,7 @@ data class TimerRegisterData(
     val maxRetries: Int = 3,
     val priority: TimerPriority = TimerPriority.NORMAL,
     val payload: Any,
+    val classInfo: String,
     val tags: Map<String, String>? = null
 ) : MessageData()
 

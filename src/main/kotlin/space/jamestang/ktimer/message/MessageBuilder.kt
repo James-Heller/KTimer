@@ -44,6 +44,7 @@ object MessageBuilder {
         timerId: String,
         delayMillis: Long,
         payload: Any,
+        classInfo: String,
         priority: TimerPriority = TimerPriority.NORMAL,
         tags: Map<String, String>? = null
     ): KTimerMessage {
@@ -56,6 +57,7 @@ object MessageBuilder {
                 delayMillis = delayMillis,
                 executeAt = System.currentTimeMillis() + delayMillis,
                 payload = payload,
+                classInfo = classInfo,
                 priority = priority,
                 tags = tags
             ),
@@ -91,7 +93,8 @@ object MessageBuilder {
         timerId: String,
         originalTimestamp: Long,
         payload: Any,
-        attempt: Int = 1
+        attempt: Int = 1,
+        classInfo: String
     ): KTimerMessage {
         return KTimerMessage(
             type = MessageType.TIMER_CALLBACK,
@@ -102,7 +105,8 @@ object MessageBuilder {
                 originalTimestamp = originalTimestamp,
                 executeTimestamp = System.currentTimeMillis(),
                 attempt = attempt,
-                payload = payload
+                payload = payload,
+                classInfo = classInfo
             ),
             timestamp = System.currentTimeMillis()
         )

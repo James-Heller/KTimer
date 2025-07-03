@@ -6,5 +6,6 @@ data class TimerCallbackData(
     val originalTimestamp: Long,
     val executeTimestamp: Long,
     val attempt: Int = 1,
-    val payload: Any
+    val payload: Any,
+    val classInfo: String
 ) : MessageData()

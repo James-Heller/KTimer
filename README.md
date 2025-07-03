@@ -48,7 +48,9 @@ KTimer is a high-performance timer service built with Kotlin and Netty, designed
 
 ## 使用说明 (Usage)
 
-客户端还在开发中，敬请期待！
+MVP版本的 KTimer 客户端提供了简单的 API 来连接到 KTimer 服务器并进行任务调度。
+The MVP version of the KTimer client provides a simple API to connect to the KTimer server and schedule tasks.
+项目地址 (Project URL): [KTimer Client](https://github.com/James-Heller/KTimer-Client)
 
 ---
 

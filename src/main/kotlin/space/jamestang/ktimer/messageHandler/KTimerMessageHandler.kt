@@ -60,6 +60,7 @@ class TimerMessageHandler(private val connectionManager: ConnectionManager) : Si
                 MessageType.TIMER_CANCEL -> handleTimerCancel(ctx, msg, connectionId)
                 MessageType.HEARTBEAT -> handleHeartbeat(ctx, msg, connectionId)
                 MessageType.ACK -> handleAck(ctx, msg, connectionId)
+                MessageType.ERROR -> handleError(ctx, msg, connectionId)
                 else -> {
                     logger.warn("Unsupported message type: ${msg.type}")
                     sendError(ctx, msg, "UNSUPPORTED_MESSAGE_TYPE", "Message type ${msg.type} is not supported")
@@ -157,13 +158,25 @@ class TimerMessageHandler(private val connectionManager: ConnectionManager) : Si
             originalMessageId = msg.messageId,
             message = "Heartbeat received"
         )
+        logger.trace("Received heartbeat from client: ${msg.clientId}, sending ACK")
         ctx.writeAndFlush(ackMessage)
     }
 
     private fun handleAck(ctx: ChannelHandlerContext, msg: KTimerMessage, connectionId: String) {
         val ackData = msg.getDataAs<AckData>()
-        logger.debug("Received ACK for message: ${ackData?.originalMessageId} from client: ${msg.clientId}")
+        logger.debug(msg.toString())
         // TODO: 处理确认消息，更新消息状态
+    }
+
+    private fun handleError(ctx: ChannelHandlerContext, msg: KTimerMessage, connectionId: String) {
+        val errorData = msg.getDataAs<ErrorData>()
+        if (errorData == null) {
+            logger.error("Received error message with invalid data: ${msg.data}")
+            return
+        }
+
+        logger.error("Error from client ${msg.clientId}: ${errorData.errorMessage}")
+
     }
 
     private fun sendError(ctx: ChannelHandlerContext, originalMsg: KTimerMessage, errorCode: String, errorMessage: String) {
@@ -244,6 +257,7 @@ class TimerMessageHandler(private val connectionManager: ConnectionManager) : Si
                 maxRetries = (map["maxRetries"] as? Number)?.toInt() ?: 3,
                 priority = TimerPriority.valueOf(map["priority"] as? String ?: "NORMAL"),
                 payload = map["payload"] ?: Any(),
+                classInfo = map["classInfo"] as String,
                 tags = (map["tags"] as? Map<String, Any>)?.mapValues { it.value.toString() }
             )
         } catch (_: Exception) {
@@ -270,7 +284,8 @@ class TimerMessageHandler(private val connectionManager: ConnectionManager) : Si
                 originalTimestamp = (map["originalTimestamp"] as Number).toLong(),
                 executeTimestamp = (map["executeTimestamp"] as Number).toLong(),
                 attempt = (map["attempt"] as? Number)?.toInt() ?: 1,
-                payload = map["payload"] ?: Any()
+                payload = map["payload"] ?: Any(),
+                classInfo = map["classInfo"] as String
             )
         } catch (_: Exception) {
             null

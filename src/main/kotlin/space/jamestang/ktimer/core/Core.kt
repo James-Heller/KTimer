@@ -47,7 +47,7 @@ class Core(
                 }
 
                 for (times in 1..timerData.maxRetries) {
-                    val data = MessageBuilder.createTimerCallback(clientId, timerData.timerId, now, timerData.payload, attempt = times)
+                    val data = MessageBuilder.createTimerCallback(clientId, timerData.timerId, now, timerData.payload, classInfo = timerData.classInfo, attempt = times)
                     if (connectionManager.sendToClient(clientId, data)) {
                         logger.info("Timer callback sent to client $clientId for task ${timerData.timerId} on attempt $times")
                         clientTasks.remove(timerData.timerId)
